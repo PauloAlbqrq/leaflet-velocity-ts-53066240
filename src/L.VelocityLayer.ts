@@ -1,19 +1,19 @@
-import Windy, { WindyOptions } from './windy';
-import CanvasBound from './canvasBound'
-import MapBound from './mapBound';
+import Windy, { WindyOptions } from "./windy";
+import CanvasBound from "./canvasBound";
+import MapBound from "./mapBound";
 import Layer from "./layer";
-import CanvasLayer from './L.CanvasLayer';
+import CanvasLayer from "./L.CanvasLayer";
 
-declare var L: any;
+import L from "leaflet";
 
 export default class VelocityLayer {
   private options: any;
   private _map: L.Map = null;
-  private _canvasLayer: (CanvasLayer & L.Layer) = null;
+  private _canvasLayer: CanvasLayer & L.Layer = null;
   private _windy: Windy = null;
   private _context: any = null;
   private _displayTimeout: ReturnType<typeof setTimeout> = null;
-  private _mapEvents: any = null
+  private _mapEvents: any = null;
   private _mouseControl: any = null;
   private _paneName: string = null;
 
@@ -21,18 +21,18 @@ export default class VelocityLayer {
     this.options = {
       displayValues: true,
       displayOptions: {
-        velocityType: 'Velocity',
-        position: 'bottomleft',
-        emptyString: 'No velocity data',
-        angleConvention: 'bearingCCW',
-        speedUnit: 'm/s'
+        velocityType: "Velocity",
+        position: "bottomleft",
+        emptyString: "No velocity data",
+        angleConvention: "bearingCCW",
+        speedUnit: "m/s",
       },
       maxVelocity: 10, // used to align color scale
       colorScale: null,
       onAdd: null,
       onRemove: null,
       data: null,
-      paneName: "overlayPane"
+      paneName: "overlayPane",
     };
   }
 
@@ -41,9 +41,12 @@ export default class VelocityLayer {
   }
 
   setOptions(options: any) {
-    this.options = {...this.options, ...options};
+    this.options = { ...this.options, ...options };
     if (options.displayOptions) {
-      this.options.displayOptions = {...this.options.displayOptions, ...options.displayOptions};
+      this.options.displayOptions = {
+        ...this.options.displayOptions,
+        ...options.displayOptions,
+      };
       this.initMouseHandler(true);
     }
 
@@ -81,15 +84,13 @@ export default class VelocityLayer {
 
     this._map = map;
 
-    if (this.options.onAdd)
-      this.options.onAdd();
+    if (this.options.onAdd) this.options.onAdd();
   }
 
   onRemove(map: any) {
     this.destroyWind();
 
-    if (this.options.onRemove)
-      this.options.onRemove();
+    if (this.options.onRemove) this.options.onRemove();
   }
 
   setData(data: any) {
@@ -100,7 +101,7 @@ export default class VelocityLayer {
       this.clearAndRestart();
     }
 
-    (<any>this).fire('load');
+    (<any>this).fire("load");
   }
 
   onDrawLayer() {
@@ -123,27 +124,27 @@ export default class VelocityLayer {
   private toggleEvents(bind: boolean = true) {
     if (this._mapEvents === null) {
       this._mapEvents = {
-        'dragstart': () => {
+        dragstart: () => {
           this._windy.stop();
         },
-        'dragend': () => {
+        dragend: () => {
           this.clearAndRestart();
         },
-        'zoomstart': () => {
+        zoomstart: () => {
           this._windy.stop();
         },
-        'zoomend': () => {
+        zoomend: () => {
           this.clearAndRestart();
         },
-        'resize': () => {
+        resize: () => {
           this.clearWind();
-        }
+        },
       };
     }
 
     for (let e in this._mapEvents) {
       if (this._mapEvents.hasOwnProperty(e)) {
-        this._map[bind ? 'on' : 'off'](e, this._mapEvents[e])
+        this._map[bind ? "on" : "off"](e, this._mapEvents[e]);
       }
     }
   }
@@ -151,12 +152,12 @@ export default class VelocityLayer {
   private initWindy() {
     const options: WindyOptions = {
       ...this.options,
-      canvas: this._canvasLayer.getCanvas()
-    }
+      canvas: this._canvasLayer.getCanvas(),
+    };
     this._windy = new Windy(options);
 
     // prepare context global var, start drawing
-    this._context = this._canvasLayer.getCanvas().getContext('2d');
+    this._context = this._canvasLayer.getCanvas().getContext("2d");
     this._canvasLayer.getCanvas().classList.add("velocity-overlay");
     this.onDrawLayer();
 
@@ -164,7 +165,6 @@ export default class VelocityLayer {
 
     this.initMouseHandler();
   }
-
 
   private initMouseHandler(unbind: boolean = false) {
     if (unbind) {
@@ -193,11 +193,10 @@ export default class VelocityLayer {
           bounds.getNorthEast().lat,
           bounds.getNorthEast().lng,
           bounds.getSouthWest().lat,
-          bounds.getSouthWest().lng
+          bounds.getSouthWest().lng,
         ),
-        new CanvasBound(0, 0, size.x, size.y)
-      )
-
+        new CanvasBound(0, 0, size.x, size.y),
+      ),
     );
   }
 
@@ -212,14 +211,10 @@ export default class VelocityLayer {
   }
 
   private destroyWind() {
-    if (this._displayTimeout)
-      clearTimeout(this._displayTimeout);
-    if (this._windy)
-      this._windy.stop();
-    if (this._context)
-      this._context.clearRect(0, 0, 3000, 3000);
-    if (this._mouseControl)
-      this._map.removeControl(this._mouseControl);
+    if (this._displayTimeout) clearTimeout(this._displayTimeout);
+    if (this._windy) this._windy.stop();
+    if (this._context) this._context.clearRect(0, 0, 3000, 3000);
+    if (this._mouseControl) this._map.removeControl(this._mouseControl);
     this._mouseControl = null;
     this._windy = null;
     this.toggleEvents(false);

@@ -19,7 +19,6 @@ export interface WindyOptions {
   opacity: number;
 }
 export default class Windy {
-
   private grid: any;
   private λ0: number;
   private φ0: number;
@@ -44,7 +43,6 @@ export default class Windy {
   private frameTime: number;
   private then = 0;
 
-
   constructor(options: WindyOptions) {
     this.setOptions(options);
     this.canvas = options.canvas;
@@ -54,13 +52,20 @@ export default class Windy {
   }
 
   public setOptions(options: WindyOptions) {
-    if (options.minVelocity === undefined && options.maxVelocity === undefined) {
+    if (
+      options.minVelocity === undefined &&
+      options.maxVelocity === undefined
+    ) {
       this.autoColorRange = true;
     }
-    this.colorScale = new ColorScale(options.minVelocity || 0, options.maxVelocity || 10, options.colorScale);
+    this.colorScale = new ColorScale(
+      options.minVelocity || 0,
+      options.maxVelocity || 10,
+      options.colorScale,
+    );
     this.velocityScale = options.velocityScale || 0.01;
     this.particleAge = options.particleAge || 64;
-    this.opacity = +options.opacity || 0.97
+    this.opacity = +options.opacity || 0.97;
 
     this.particleMultiplier = options.particleMultiplier || 1 / 300;
     this.particleLineWidth = options.particlelineWidth || 1;
@@ -69,8 +74,19 @@ export default class Windy {
   }
 
   public get particuleCount() {
-    const particuleReduction = ((/android|blackberry|iemobile|ipad|iphone|ipod|opera mini|webos/i).test(navigator.userAgent)) ? (Math.pow(window.devicePixelRatio, 1 / 3) || 1.6) : 1;
-    return Math.round(this.layer.canvasBound.width * this.layer.canvasBound.height * this.particleMultiplier) * particuleReduction;
+    const particuleReduction =
+      /android|blackberry|iemobile|ipad|iphone|ipod|opera mini|webos/i.test(
+        navigator.userAgent,
+      )
+        ? Math.pow(window.devicePixelRatio, 1 / 3) || 1.6
+        : 1;
+    return (
+      Math.round(
+        this.layer.canvasBound.width *
+          this.layer.canvasBound.height *
+          this.particleMultiplier,
+      ) * particuleReduction
+    );
   }
 
   /**
@@ -83,7 +99,9 @@ export default class Windy {
     const grid: Vector[] = [];
 
     data.forEach((record) => {
-      switch (`${record.header.parameterCategory},${record.header.parameterNumber}`) {
+      switch (
+        `${record.header.parameterCategory},${record.header.parameterNumber}`
+      ) {
         case "1,2":
         case "2,2":
           uData = record;
@@ -103,7 +121,7 @@ export default class Windy {
 
     uData.data.forEach((u: number, index: number) => {
       grid.push(new Vector(u, vData.data[index]));
-    })
+    });
 
     //console.log('uData', uData);
     //console.log('vData', vData);
@@ -115,14 +133,14 @@ export default class Windy {
       uData.header.dy,
       uData.header.dx,
       uData.header.ny,
-      uData.header.nx
+      uData.header.nx,
     );
 
     this.λ0 = uData.header.lo1;
     this.φ0 = uData.header.la1;
 
     this.Δλ = uData.header.dx;
-    this.Δφ = uData.header.dy
+    this.Δφ = uData.header.dy;
 
     this.ni = uData.header.nx;
     this.nj = uData.header.ny; // number of grid points W-E and N-S (e.g., 144 x 73)
@@ -149,10 +167,10 @@ export default class Windy {
   }
 
   /* Get interpolated grid value from Lon/Lat position
-* @param λ {Float} Longitude
-* @param φ {Float} Latitude
-* @returns {Object}
-*/
+   * @param λ {Float} Longitude
+   * @param φ {Float} Latitude
+   * @returns {Object}
+   */
   public interpolate(λ: number, φ: number): any {
     if (!this.grid) {
       return null;
@@ -164,7 +182,7 @@ export default class Windy {
     var ci = fi + 1;
     var fj = Math.floor(j);
     var cj = fj + 1;
-    var row = this.grid[fj];//Dont know why he dosent found any row ERRRROR
+    var row = this.grid[fj]; //Dont know why he dosent found any row ERRRROR
     if (row) {
       var g00 = row[fi];
       var g10 = row[ci];
@@ -173,12 +191,19 @@ export default class Windy {
         var g11 = row[ci];
         if (this.isValue(g01) && this.isValue(g11)) {
           // All four points found, so interpolate the value.
-          return this.bilinearInterpolateVector(i - fi, j - fj, g00, g10, g01, g11);
+          return this.bilinearInterpolateVector(
+            i - fi,
+            j - fj,
+            g00,
+            g10,
+            g01,
+            g11,
+          );
         }
       }
     }
     return null;
-  };
+  }
 
   public start(layer: Layer) {
     this.context2D = this.canvas.getContext("2d");
@@ -191,7 +216,9 @@ export default class Windy {
 
     this.particules.splice(0, this.particules.length);
     for (let i = 0; i < this.particuleCount; i++) {
-      this.particules.push(this.layer.canvasBound.getRandomParticule(this.particleAge));
+      this.particules.push(
+        this.layer.canvasBound.getRandomParticule(this.particleAge),
+      );
     }
 
     this.then = new Date().getTime();
@@ -210,20 +237,30 @@ export default class Windy {
 
   private floorMod(a: number, n: number) {
     return a - n * Math.floor(a / n);
-  };
+  }
 
   private isValue(x: any) {
     return x !== null && x !== undefined;
-  };
+  }
 
-  private bilinearInterpolateVector(x: number, y: number, g00: any, g10: any, g01: any, g11: any) {
-    var rx = (1 - x);
-    var ry = (1 - y);
-    var a = rx * ry, b = x * ry, c = rx * y, d = x * y;
+  private bilinearInterpolateVector(
+    x: number,
+    y: number,
+    g00: any,
+    g10: any,
+    g01: any,
+    g11: any,
+  ) {
+    var rx = 1 - x;
+    var ry = 1 - y;
+    var a = rx * ry,
+      b = x * ry,
+      c = rx * y,
+      d = x * y;
     var u = g00.u * a + g10.u * b + g01.u * c + g11.u * d;
     var v = g00.v * a + g10.v * b + g01.v * c + g11.v * d;
     return [u, v, Math.sqrt(u * u + v * v)];
-  };
+  }
 
   private getParticuleWind(p: Particule): Vector {
     const lngLat = this.layer.canvasToMap(p.x, p.y);
@@ -235,11 +272,9 @@ export default class Windy {
     return wind;
   }
 
-
-
   private frame() {
     this.animationLoop = requestAnimationFrame(() => {
-      this.frame()
+      this.frame();
     });
     var now = new Date().getTime();
     var delta = now - this.then;
@@ -268,7 +303,7 @@ export default class Windy {
       this.layer.canvasBound.xMin,
       this.layer.canvasBound.yMin,
       this.layer.canvasBound.width,
-      this.layer.canvasBound.height
+      this.layer.canvasBound.height,
     );
     // Fade existing particle trails.
     this.context2D.globalCompositeOperation = "lighter";
