@@ -1,6 +1,6 @@
 import Windy from "./windy";
 import L from "leaflet";
-import velocitycss from "./leaflet-velocity.css";
+import * as velocitycss from "./leaflet-velocity.css";
 
 interface DisplayOptions {
   speedUnit: "kt" | "k/h" | "mph" | "m/s";
