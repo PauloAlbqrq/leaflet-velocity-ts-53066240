@@ -130,7 +130,7 @@ export default class Windy {
       grid,
       uData.header.la1,
       uData.header.lo1,
-      uData.header.dy,
+      uData.header.scanMode === 64 ? -uData.header.dy : uData.header.dy,
       uData.header.dx,
       uData.header.ny,
       uData.header.nx,
@@ -140,8 +140,7 @@ export default class Windy {
     this.φ0 = uData.header.la1;
 
     this.Δλ = uData.header.dx;
-    this.Δφ = uData.header.dy;
-
+    this.Δφ = uData.header.scanMode === 64 ? -uData.header.dy : uData.header.dy;
     this.ni = uData.header.nx;
     this.nj = uData.header.ny; // number of grid points W-E and N-S (e.g., 144 x 73)
 
@@ -228,7 +227,9 @@ export default class Windy {
 
   public stop() {
     this.particules.splice(0, this.particules.length);
-    this.animationBucket.clear();
+    if (this.animationBucket) {
+      this.animationBucket.clear();
+    }
     if (this.animationLoop) {
       clearTimeout(this.animationLoop);
       this.animationLoop = null;
