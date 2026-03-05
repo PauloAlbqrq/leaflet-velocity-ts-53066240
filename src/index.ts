@@ -5,6 +5,7 @@ import Windy from "./windy";
 import CanvasLayer from "./L.CanvasLayer";
 import VelocityLayer from "./L.VelocityLayer";
 import ControlVelocity from "./L.Control.Velocity";
+import VelocityLayerComponent from "./VelocityComponent";
 
 (<any>window).CanvasBound = CanvasBound;
 (<any>window).MapBound = MapBound;
@@ -24,3 +25,5 @@ L.VelocityLayer = (L.Layer ? L.Layer : L.Class).extend(new VelocityLayer());
 L.velocityLayer = function (options: any) {
   return new L.VelocityLayer(options);
 };
+
+export default VelocityLayerComponent;
