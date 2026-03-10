@@ -105,6 +105,7 @@ export default class VelocityLayer {
   }
 
   onDrawLayer() {
+    if (!this._map) return; // guard
     if (!this._windy) {
       this.initWindy();
       return;
@@ -182,6 +183,7 @@ export default class VelocityLayer {
   }
 
   private startWindy() {
+    if (!this._map) return; // guard
     var bounds = this._map.getBounds();
     var size = this._map.getSize();
 
@@ -201,6 +203,7 @@ export default class VelocityLayer {
   }
 
   private clearAndRestart() {
+    if (!this._map) return; // guard
     if (this._context) this._context.clearRect(0, 0, 3000, 3000);
     if (this._windy) this.startWindy();
   }

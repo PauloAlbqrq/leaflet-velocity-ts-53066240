@@ -30,8 +30,9 @@
     "webpack-node-externals": "^3.0.0"
   },
   "peerDependencies": {
-    "@types/react": "^19.2.14",
+    "@react-leaflet/core": "^3.0.0",
     "@types/leaflet": "^1.9.19",
+    "@types/react": "^19.2.14",
     "leaflet": "1.9.4",
     "react": "^19.2.4",
     "react-leaflet": "^5.0.0"

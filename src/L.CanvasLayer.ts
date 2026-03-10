@@ -18,6 +18,7 @@ export default class CanvasLayer {
   private _canvas: HTMLCanvasElement;
   private _frame: number;
   private _del: any;
+  private _initTimeout: ReturnType<typeof setTimeout>;
 
   public initialize(options: any) {
     this._map = null;
@@ -77,12 +78,13 @@ export default class CanvasLayer {
     del.onLayerDidMount && del.onLayerDidMount(); // -- callback
     this.needRedraw();
 
-    setTimeout(() => {
+    this._initTimeout = setTimeout(() => {
       this.onLayerDidMove();
     }, 0);
   }
 
   public onRemove(map: L.Map) {
+    if (this._initTimeout) clearTimeout(this._initTimeout);
     const del = this._del || this;
     del.onLayerWillUnmount && del.onLayerWillUnmount(); // -- callback
 
@@ -100,6 +102,7 @@ export default class CanvasLayer {
 
   public drawLayer() {
     // -- todo make the viewInfo properties flat objects.
+    if (!this._map) return; //guard
     const size = this._map.getSize();
     const bounds = this._map.getBounds();
     const zoom = this._map.getZoom();
