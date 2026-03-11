@@ -3,6 +3,7 @@
   "version": "1.2.0",
   "description": "Visualise velocity layers with leaflet (Typescript fork)",
   "main": "dist/leaflet-velocity.js",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --stats-modules --mode production",

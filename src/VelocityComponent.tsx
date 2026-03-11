@@ -5,9 +5,9 @@ import {
   useLeafletContext,
 } from "@react-leaflet/core";
 import { useEffect, useState } from "react";
+import L from "leaflet";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const L: any;
 
 //new não existe no código exemplo da lib
 
@@ -65,13 +65,15 @@ function createVelocity(props: any, context: any) {
 
 // eslint-disable-next-line react-hooks/refs
 function updateVelocity(instance: any, props: any, prevProps: any) {
-  return;
+  if (prevProps.data !== props.data) {
+    instance.setData(props.data);
+  }
 }
 
 const useVelocityElement = createElementHook(createVelocity, updateVelocity);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function VelocityLayer(props: any): any {
+  if (!props.data) return;
   const context = useLeafletContext();
   const elementRef = useVelocityElement(props, context);
   useLayerLifecycle(elementRef.current, context);
