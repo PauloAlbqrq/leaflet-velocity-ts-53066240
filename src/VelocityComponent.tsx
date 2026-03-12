@@ -7,9 +7,44 @@ import {
 import { useEffect, useState } from "react";
 import L from "leaflet";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-
-//new não existe no código exemplo da lib
+const EMPTY_VELOCITY_DATA = [
+  {
+    header: {
+      parameterCategory: 2,
+      parameterNumber: 2,
+      parameterNumberName: "eastward_wind",
+      parameterUnit: "m.s-1",
+      nx: 0,
+      ny: 0,
+      lo1: 0,
+      lo2: 0,
+      la1: 0,
+      la2: 0,
+      dx: 1.0,
+      dy: 1.0,
+      refTime: "2000-01-01 00:00:00",
+    },
+    data: [0],
+  },
+  {
+    header: {
+      parameterCategory: 2,
+      parameterNumber: 3,
+      parameterNumberName: "northward_wind",
+      parameterUnit: "m.s-1",
+      nx: 0,
+      ny: 0,
+      lo1: 0,
+      lo2: 0,
+      la1: 0,
+      la2: 0,
+      dx: 1.0,
+      dy: 1.0,
+      refTime: "2000-01-01 00:00:00",
+    },
+    data: [0],
+  },
+];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createVelocity(props: any, context: any) {
@@ -41,7 +76,7 @@ function createVelocity(props: any, context: any) {
       angleConvention: "bearingCW",
     },
     // see demo/*.json, or wind-js-server for example data service
-    data: props.data,
+    data: props.data ?? EMPTY_VELOCITY_DATA,
 
     // OPTIONAL
     particleAge: 64,
@@ -73,7 +108,6 @@ function updateVelocity(instance: any, props: any, prevProps: any) {
 const useVelocityElement = createElementHook(createVelocity, updateVelocity);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function VelocityLayer(props: any): any {
-  if (!props.data) return;
   const context = useLeafletContext();
   const elementRef = useVelocityElement(props, context);
   useLayerLifecycle(elementRef.current, context);
